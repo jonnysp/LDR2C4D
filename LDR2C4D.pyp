@@ -1,6 +1,5 @@
 import c4d
 import os
-import re
 import struct
 
 from c4d import bitmaps, gui, plugins, documents, utils
