@@ -381,7 +381,6 @@ class LdrawFile(object):
 
     def __init__(self, FileName , Lines):
         self.LdrawLines = []
-        self.fullyLoaded = False
         self.isModel = False
         self.isPart = False
         self.isShortcut = False
@@ -536,8 +535,7 @@ class LDrawColors(object):
 
     def rgb2hex(self,rgb):
         return '#' + struct.pack('BBB',*rgb).encode('hex')
-            
-       
+                   
 class LDrawColor(object):
 
     def __init__(self, vals):
@@ -943,8 +941,7 @@ class LDRDialog(gui.GeDialog):
         return True
 
     def Setpath(self):
-        path = str(c4d.storage.LoadDialog(flags=c4d.FILESELECT_DIRECTORY, title='select Ldraw path'))
-        self.ldrawpath = path
+        self.ldrawpath = str(c4d.storage.LoadDialog(flags=c4d.FILESELECT_DIRECTORY, title='select Ldraw path'))
         self.SetString(IDC_LDRAWPATH,self.ldrawpath)
         return True
 
