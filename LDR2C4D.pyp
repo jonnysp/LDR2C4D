@@ -942,8 +942,23 @@ class LDRDialog(gui.GeDialog):
 
     def Setpath(self):
         self.ldrawpath = str(c4d.storage.LoadDialog(flags=c4d.FILESELECT_DIRECTORY, title='select Ldraw path'))
-        self.SetString(IDC_LDRAWPATH,self.ldrawpath)
+        if self.ldrawpath != '':
+            if self.isLdrawDir(self.ldrawpath) == True:
+                self.Enable(IDC_LOAD, True)
+                self.SetString(IDC_LDRAWPATH,self.ldrawpath)
+            else:
+                self.Enable(IDC_LOAD, False)
+                self.SetString(IDC_LDRAWPATH,'')
+                self.ldrawpath = ''
+        
         return True
+
+    def isLdrawDir(self,Dir):
+        if os.path.exists(os.path.join(Dir, "LDConfig.ldr")):
+            return True
+        elif os.path.exists(os.path.join(Dir, "LDCfgalt.ldr")):
+            return True
+        return False
 
     def About(self):
         gui.MessageDialog("LDR2C4D jonnysp (C)2017", c4d.GEMB_OK)
@@ -956,14 +971,20 @@ class LDRDialog(gui.GeDialog):
         else:
             if self.LDRData[LDRAWPATH]:
                 self.ldrawpath = self.LDRData[LDRAWPATH]
-                self.Enable(IDC_LOAD, True)
-                self.SetString(IDC_LDRAWPATH,self.ldrawpath)
+
+                if self.ldrawpath != '':
+                    if self.isLdrawDir(self.ldrawpath) == True:
+                        self.Enable(IDC_LOAD, True)
+                        self.SetString(IDC_LDRAWPATH,self.ldrawpath)
+                    else:
+                        self.Enable(IDC_LOAD, False)
+                        self.SetString(IDC_LDRAWPATH,'')
+                        self.ldrawpath = ''
 
             if self.LDRData[RESOLUTION]:
                 self.resolution = int(self.LDRData[RESOLUTION])
                 self.SetInt32(IDC_COMBO ,self.resolution)
             
-
             if self.LDRData[LOGO]:
                 if self.resolution == COMBO_LOW or self.resolution == COMBO_HIH:
                     self.Enable(IDC_LOGO, False)
@@ -972,6 +993,7 @@ class LDRDialog(gui.GeDialog):
                     self.logo = bool(self.LDRData[LOGO])
             else:
                 self.logo = False
+
             self.SetBool(IDC_LOGO, self.logo)
 
 
@@ -988,11 +1010,8 @@ class LDRDialog(gui.GeDialog):
                 self.smoth = False
                 self.Enable(IDC_SMOTH, False)
 
-
             self.SetBool(IDC_OPTIMIZE, self.optimize)
             self.SetBool(IDC_SMOTH, self.smoth)
-           
-
 
         return True
 
@@ -1001,8 +1020,7 @@ class LDRDialog(gui.GeDialog):
             self.LDRData = c4d.BaseContainer()
             self.UpdatePrefs()
         else:
-            if self.ldrawpath and self.LDRData:
-                self.LDRData.SetString(LDRAWPATH, self.ldrawpath)
+            self.LDRData.SetString(LDRAWPATH, self.ldrawpath)
             self.LDRData.SetString(RESOLUTION, self.resolution)
             self.LDRData.SetBool(LOGO, self.logo)
             self.LDRData.SetBool(OPTIMIZE, self.optimize)
@@ -1023,7 +1041,6 @@ class LDRDialog(gui.GeDialog):
         if file:
             FILEMANAGER = FileManager(self.ldrawpath , file , self.resolution, self.logo)
             LDRAWCOLORS = LDrawColors()
-
 
             optimizesettings = c4d.BaseContainer()
             optimizesettings.SetData(c4d.MDATA_OPTIMIZE_POLYGONS, True)
