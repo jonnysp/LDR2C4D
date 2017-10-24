@@ -115,8 +115,7 @@ def generate(ld,matrix,currentColor,doc,parent,optimizesettings,optimize,smoth):
                     else:
                         obj.SetPhong(True, True, c4d.utils.Rad(40))
 
-
-                obj.SetMg( FLIP * matrix * FLIP)
+                obj.SetMg(FLIP * matrix * FLIP)
 
                 if optimize == True:
                     c4d.utils.SendModelingCommand(c4d.MCOMMAND_OPTIMIZE, [obj], c4d.MODIFY_ALL, optimizesettings, doc)
@@ -721,7 +720,8 @@ class LdrawCondLine(object):
         self.Color = is_color(Values[1])
         self.P1 = c4d.Vector(is_float(Values[2]), is_float(Values[3]), is_float(Values[4]))
         self.P2 = c4d.Vector(is_float(Values[5]), is_float(Values[6]), is_float(Values[7]))
-
+        self.P3 = c4d.Vector(is_float(Values[8]), is_float(Values[9]), is_float(Values[10]))
+        self.P4 = c4d.Vector(is_float(Values[11]), is_float(Values[12]), is_float(Values[13]))
     def fillMesh(self,transform,currentColor,meshfiller):
         pass
 
