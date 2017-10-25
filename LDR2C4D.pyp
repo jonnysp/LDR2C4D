@@ -126,6 +126,7 @@ def generate(ld,matrix,currentColor,doc,parent,optimizesettings,optimize,smoth):
         else:
  
             newnode = c4d.BaseObject(c4d.Onull)
+            newnode[c4d.NULLOBJECT_DISPLAY] = c4d.NULLOBJECT_DISPLAY_NONE
             newnode.SetName(ld.Partname)      
             newnode.SetMg(FLIP * matrix * FLIP) 
 
@@ -166,6 +167,7 @@ class MeshFiller(object):
     def addFace3(self,ccw,certified,det,color,v0,v1,v2):
         if not certified == True:
             ccw = True
+
         flip = self.inverting ^ (det < 0) ^ (not ccw)
         p1 = self.addVertice(v2 if flip == True else v0)
         p2 = self.addVertice(v1)
@@ -175,14 +177,15 @@ class MeshFiller(object):
 
     def addFace4(self,ccw,certified,det,color,v0,v1,v2,v3):
 
-        nA = (v1 - v0).Cross(v2 - v0)
-        nB = (v2 - v1).Cross(v3 - v1)
-        if (nA.Dot(nB) < 0):
-            print "bowtie detected"
-            v2, v3 = v3, v2
+#        nA = (v1 - v0).Cross(v2 - v0)
+#        nB = (v2 - v1).Cross(v3 - v1)
+#        if (nA.Dot(nB) < 0):
+#            print "bowtie detected"
+#            v2, v3 = v3, v2
 
         if not certified == True:
             ccw = True
+
         flip = self.inverting ^ (det < 0) ^ (not ccw)
         p1 = self.addVertice(v2 if flip == True else v0)
         p2 = self.addVertice(v1)
@@ -212,13 +215,11 @@ class FileManager(object):
         if os.path.exists(os.path.join(self.LdrawPath, "unofficial")):
             self.PathList.append(os.path.join(self.LdrawPath, "unofficial", "parts"))
 
-            if self.Quality == COMBO_HIH:
-                if os.path.exists(os.path.join(self.LdrawPath,  "unofficial", "p", "48")):
-                    self.PathList.append(os.path.join(self.LdrawPath, "unofficial", "p", "48"))
+            if self.Quality == COMBO_HIH and os.path.exists(os.path.join(self.LdrawPath,  "unofficial", "p", "48")):
+                self.PathList.append(os.path.join(self.LdrawPath, "unofficial", "p", "48"))
 
-            elif self.Quality == COMBO_LOW:
-                if os.path.exists(os.path.join(self.LdrawPath,  "unofficial", "p", "8")):
-                    self.PathList.append(os.path.join(self.LdrawPath,"unofficial", "p", "8"))
+            elif self.Quality == COMBO_LOW and os.path.exists(os.path.join(self.LdrawPath,  "unofficial", "p", "8")):
+                self.PathList.append(os.path.join(self.LdrawPath,"unofficial", "p", "8"))
             
             if os.path.exists(os.path.join(self.LdrawPath,  "unofficial", "p")):
                 self.PathList.append(os.path.join(self.LdrawPath, "unofficial", "p"))
@@ -232,13 +233,11 @@ class FileManager(object):
         if os.path.exists(os.path.join(self.LdrawPath, "parts")):
             self.PathList.append(os.path.join(self.LdrawPath, "parts"))
 
-        if self.Quality == COMBO_HIH:
-            if os.path.exists(os.path.join(self.LdrawPath, "p","48")):
-                self.PathList.append(os.path.join(self.LdrawPath, "p", "48"))
+        if self.Quality == COMBO_HIH and os.path.exists(os.path.join(self.LdrawPath, "p","48")):
+            self.PathList.append(os.path.join(self.LdrawPath, "p", "48"))
 
-        elif self.Quality == COMBO_LOW:
-            if os.path.exists(os.path.join(self.LdrawPath, "p","8")):
-                self.PathList.append(os.path.join(self.LdrawPath, "p", "8"))
+        elif self.Quality == COMBO_LOW and os.path.exists(os.path.join(self.LdrawPath, "p","8")):
+            self.PathList.append(os.path.join(self.LdrawPath, "p", "8"))
 
         if os.path.exists(os.path.join(self.LdrawPath, "p")):
             self.PathList.append(os.path.join(self.LdrawPath, "p"))
@@ -1073,6 +1072,8 @@ class LDRDialog(gui.GeDialog):
 
             parent = c4d.BaseObject(c4d.Onull)
             parent.SetName(scene.Name)  
+            parent[c4d.NULLOBJECT_DISPLAY] = c4d.NULLOBJECT_DISPLAY_NONE
+
             generate(scene,c4d.Matrix(),16,doc,parent,optimizesettings,self.optimize,self.smoth)
             doc.InsertObject(parent)
             doc.AddUndo(c4d.UNDOTYPE_NEW, parent)
