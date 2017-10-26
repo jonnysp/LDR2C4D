@@ -776,9 +776,11 @@ def buildMaterial(doc, mat):
             layer = m.AddReflectionLayer()
             if layer is not None:
                 layerID = layer.GetDataID()
+                m.SetParameter(layerID + c4d.REFLECTION_LAYER_MAIN_VALUE_REFLECTION, 0.8, c4d.DESCFLAGS_SET_0)
                 m.SetParameter(layerID + c4d.REFLECTION_LAYER_MAIN_VALUE_ROUGHNESS, 0.05, c4d.DESCFLAGS_SET_0)
                 m.SetParameter(layerID + c4d.REFLECTION_LAYER_FRESNEL_MODE, c4d.REFLECTION_FRESNEL_DIELECTRIC, c4d.DESCFLAGS_SET_0)
                 m.SetParameter(layerID + c4d.REFLECTION_LAYER_FRESNEL_PRESET, c4d.REFLECTION_FRESNEL_DIELECTRIC_PET, c4d.DESCFLAGS_SET_0)
+               
 
         elif mat.material == 'CHROME':
             m[c4d.MATERIAL_COLOR_COLOR] = mat.color
@@ -786,6 +788,7 @@ def buildMaterial(doc, mat):
             layer = m.AddReflectionLayer()
             if layer is not None:
                 layerID = layer.GetDataID()
+                m.SetParameter(layerID + c4d.REFLECTION_LAYER_MAIN_VALUE_REFLECTION, 0.8, c4d.DESCFLAGS_SET_0)
                 m.SetParameter(layerID + c4d.REFLECTION_LAYER_FRESNEL_MODE, c4d.REFLECTION_FRESNEL_CONDUCTOR, c4d.DESCFLAGS_SET_0)
                 if 'Gold' in mat.name:
                     m.SetParameter(layerID + c4d.REFLECTION_LAYER_FRESNEL_METAL, c4d.REFLECTION_FRESNEL_METAL_GOLD, c4d.DESCFLAGS_SET_0)
@@ -800,17 +803,21 @@ def buildMaterial(doc, mat):
             layer = m.AddReflectionLayer()
             if layer is not None:
                 layerID = layer.GetDataID()
+                m.SetParameter(layerID + c4d.REFLECTION_LAYER_MAIN_VALUE_REFLECTION, 0.8, c4d.DESCFLAGS_SET_0)
                 m.SetParameter(layerID + c4d.REFLECTION_LAYER_MAIN_VALUE_ROUGHNESS, 0.5, c4d.DESCFLAGS_SET_0)
                 m.SetParameter(layerID + c4d.REFLECTION_LAYER_COLOR_BRIGHTNESS, 0.5, c4d.DESCFLAGS_SET_0)
                 m.SetParameter(layerID + c4d.REFLECTION_LAYER_FRESNEL_MODE, c4d.REFLECTION_FRESNEL_DIELECTRIC, c4d.DESCFLAGS_SET_0)
                 m.SetParameter(layerID + c4d.REFLECTION_LAYER_FRESNEL_PRESET, c4d.REFLECTION_FRESNEL_DIELECTRIC_ASPHALT, c4d.DESCFLAGS_SET_0)
 
         elif mat.material == 'METAL':
+            print mat.name
             m[c4d.MATERIAL_COLOR_COLOR] = mat.color
             m[c4d.MATERIAL_USE_COLOR] = True
             layer = m.AddReflectionLayer()
             if layer is not None:
                 layerID = layer.GetDataID()
+                m.SetParameter(layerID + c4d.REFLECTION_LAYER_MAIN_VALUE_REFLECTION, 0.8, c4d.DESCFLAGS_SET_0)
+                m.SetParameter(layerID + c4d.REFLECTION_LAYER_MAIN_VALUE_ROUGHNESS, 0.1, c4d.DESCFLAGS_SET_0)
                 m.SetParameter(layerID + c4d.REFLECTION_LAYER_FRESNEL_MODE, c4d.REFLECTION_FRESNEL_CONDUCTOR, c4d.DESCFLAGS_SET_0)
                 m.SetParameter(layerID + c4d.REFLECTION_LAYER_FRESNEL_METAL, c4d.REFLECTION_FRESNEL_METAL_ALUMINUM, c4d.DESCFLAGS_SET_0)
 
@@ -820,6 +827,8 @@ def buildMaterial(doc, mat):
                  layer = m.AddReflectionLayer()
                  if layer is not None:
                     layerID = layer.GetDataID()
+                    m.SetParameter(layerID + c4d.REFLECTION_LAYER_MAIN_VALUE_REFLECTION, 0.8, c4d.DESCFLAGS_SET_0)
+                    m.SetParameter(layerID + c4d.REFLECTION_LAYER_MAIN_VALUE_ROUGHNESS, 0.15, c4d.DESCFLAGS_SET_0)
                     m.SetParameter(layerID + c4d.REFLECTION_LAYER_FRESNEL_MODE, c4d.REFLECTION_FRESNEL_CONDUCTOR, c4d.DESCFLAGS_SET_0)
                     if 'Gold' in mat.name:
                         m.SetParameter(layerID + c4d.REFLECTION_LAYER_FRESNEL_METAL, c4d.REFLECTION_FRESNEL_METAL_GOLD, c4d.DESCFLAGS_SET_0)
