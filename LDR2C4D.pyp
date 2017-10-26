@@ -448,8 +448,6 @@ class LdrawFile(object):
                 elif tokens[0] == '5':
                     self.LdrawLines.append(LdrawCondLine(tokens))
 
-        
-
         if self.isPart == False and self.isSubpart == False and self.isShortcut == False:
         	self.isPart = not self.HasParts(self.LdrawLines)
         
@@ -481,9 +479,7 @@ class LDrawColors(object):
             self.lines = FILEMANAGER.ReadFile('LDConfig.ldr')
         elif FILEMANAGER.FileExist('LDCfgalt.ldr'):
             self.lines = FILEMANAGER.ReadFile('LDCfgalt.ldr')
-        self.populatecolors()
 
-    def populatecolors(self):
         for line in self.lines:
             if line.lower().strip().startswith('0 !c'):
                 self.colors.append(LDrawColor(line.split()))
@@ -639,7 +635,6 @@ class LdrawCommentLine(object):
     
     def isShortcut(self):
         return (len(self.vals) >= 3) and (self.vals[1] == "!LDRAW_ORG") and ("Shortcut" in self.vals[2])
-
 
     def Category(self):
         if (len(self.vals) >= 2) and (self.vals[1] == "!CATEGORY"):
