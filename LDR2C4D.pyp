@@ -67,11 +67,11 @@ def generate(ld,matrix,currentColor,doc,parent,optimizesettings,optimize,smoth):
                 mat = buildMaterial(doc,basecolor)
                 textag = c4d.TextureTag()
                 textag.SetMaterial(mat)
-                textag[c4d.TEXTURETAG_RESTRICTION] = 'basecolor'
+                textag.SetParameter( c4d.TEXTURETAG_RESTRICTION, basecolor.name, c4d.DESCFLAGS_SET_0)
                 obj.InsertTag(textag)
 
                 selp = c4d.SelectionTag(c4d.Tpolygonselection) 
-                selp[c4d.ID_BASELIST_NAME] = 'basecolor'
+                selp.SetParameter( c4d.ID_BASELIST_NAME, basecolor.name, c4d.DESCFLAGS_SET_0)
                 colortags[basecolor.name] = selp
                 bs = selp.GetBaseSelect()
 
@@ -89,8 +89,7 @@ def generate(ld,matrix,currentColor,doc,parent,optimizesettings,optimize,smoth):
                             facemat = buildMaterial(doc,facecolor)
                             facetextag = c4d.TextureTag()
                             facetextag.SetMaterial(facemat)
-                            facetextag[c4d.TEXTURETAG_RESTRICTION] = facecolor.name
-
+                            facetextag.SetParameter(c4d.TEXTURETAG_RESTRICTION, facecolor.name, c4d.DESCFLAGS_SET_0)
                             obj.InsertTag(facetextag)
 
                             faceselp = c4d.SelectionTag(c4d.Tpolygonselection)
@@ -440,13 +439,15 @@ class LdrawFile(object):
                 elif tokens[0] == '1':
                     self.LdrawLines.append(LdrawSubpartLine(tokens, inverted))
                 elif tokens[0] == '2':
-                    self.LdrawLines.append(LdrawLineLine(tokens))
+                    pass
+                    #self.LdrawLines.append(LdrawLineLine(tokens))
                 elif tokens[0] == '3':
                     self.LdrawLines.append(LdrawTriangleLine(tokens, ccw, certified))
                 elif tokens[0] == '4':
                     self.LdrawLines.append(LdrawQuadLine(tokens, ccw, certified))
                 elif tokens[0] == '5':
-                    self.LdrawLines.append(LdrawCondLine(tokens))
+                    pass
+                    #self.LdrawLines.append(LdrawCondLine(tokens))
 
         if self.isPart == False and self.isSubpart == False and self.isShortcut == False:
         	self.isPart = not self.HasParts(self.LdrawLines)
@@ -752,26 +753,28 @@ def is_int(s):
 def Determinant(m):
     return m.v1.x * (m.v2.y * m.v3.z - m.v2.z * m.v3.y) - m.v1.y * (m.v2.x * m.v3.z - m.v2.z * m.v3.x) + m.v1.z * (m.v2.x * m.v3.y - m.v2.y * m.v3.x)
 
+#def Determinant(m):
+#    return (m.v1.x * m.v2.y * m.v3.z + m.v1.y * m.v2.z * m.v3.x + m.v1.z * m.v2.x * m.v3.y - m.v1.z * m.v2.y * m.v3.x - m.v1.y * m.v2.x * m.v3.z - m.v1.x * m.v2.z * m.v3.y)
+
 def buildMaterial(doc, mat):
     m = doc.SearchMaterial(str(mat.name))
     if (m is None):
 
         m = c4d.Material(c4d.Mmaterial)
-        m[c4d.ID_BASELIST_NAME] = str(mat.name)
+        m.SetParameter(c4d.ID_BASELIST_NAME, mat.name, c4d.DESCFLAGS_SET_0)
+        m.SetParameter(c4d.MATERIAL_COLOR_COLOR, mat.color, c4d.DESCFLAGS_SET_0)
 
         m.RemoveReflectionAllLayers()
         
         if mat.material == 'BASIC' or mat.material == 'GLITTER' or mat.material == 'SPECKLE':
             if mat.alpha > 0:
-                m[c4d.MATERIAL_USE_COLOR] = False
-                m[c4d.MATERIAL_USE_TRANSPARENCY] = True
-                m[c4d.MATERIAL_TRANSPARENCY_BRIGHTNESS] = 1  # mat.a / 255
-                m[c4d.MATERIAL_TRANSPARENCY_REFRACTION] = 1.575
-                m[c4d.MATERIAL_TRANSPARENCY_COLOR] = mat.color
-               
+                m.SetParameter(c4d.MATERIAL_USE_COLOR, False, c4d.DESCFLAGS_SET_0)
+                m.SetParameter(c4d.MATERIAL_USE_TRANSPARENCY, True, c4d.DESCFLAGS_SET_0)
+                m.SetParameter(c4d.MATERIAL_TRANSPARENCY_BRIGHTNESS, 1, c4d.DESCFLAGS_SET_0)
+                m.SetParameter(c4d.MATERIAL_TRANSPARENCY_REFRACTION, 1.575, c4d.DESCFLAGS_SET_0)
+                m.SetParameter(c4d.MATERIAL_TRANSPARENCY_COLOR, mat.color, c4d.DESCFLAGS_SET_0)
             else:
-                m[c4d.MATERIAL_COLOR_COLOR] = mat.color
-                m[c4d.MATERIAL_USE_COLOR] = True
+                m.SetParameter(c4d.MATERIAL_USE_COLOR, True, c4d.DESCFLAGS_SET_0)
             
             layer = m.AddReflectionLayer()
             if layer is not None:
@@ -780,11 +783,9 @@ def buildMaterial(doc, mat):
                 m.SetParameter(layerID + c4d.REFLECTION_LAYER_MAIN_VALUE_ROUGHNESS, 0.05, c4d.DESCFLAGS_SET_0)
                 m.SetParameter(layerID + c4d.REFLECTION_LAYER_FRESNEL_MODE, c4d.REFLECTION_FRESNEL_DIELECTRIC, c4d.DESCFLAGS_SET_0)
                 m.SetParameter(layerID + c4d.REFLECTION_LAYER_FRESNEL_PRESET, c4d.REFLECTION_FRESNEL_DIELECTRIC_PET, c4d.DESCFLAGS_SET_0)
-               
 
         elif mat.material == 'CHROME':
-            m[c4d.MATERIAL_COLOR_COLOR] = mat.color
-            m[c4d.MATERIAL_USE_COLOR] = True
+            m.SetParameter(c4d.MATERIAL_USE_COLOR, True, c4d.DESCFLAGS_SET_0)
             layer = m.AddReflectionLayer()
             if layer is not None:
                 layerID = layer.GetDataID()
@@ -798,8 +799,7 @@ def buildMaterial(doc, mat):
                     m.SetParameter(layerID + c4d.REFLECTION_LAYER_FRESNEL_METAL, c4d.REFLECTION_FRESNEL_METAL_CHROMIUM, c4d.DESCFLAGS_SET_0)
 
         elif mat.material == 'RUBBER':
-            m[c4d.MATERIAL_COLOR_COLOR] = mat.color
-            m[c4d.MATERIAL_USE_COLOR] = True
+            m.SetParameter(c4d.MATERIAL_USE_COLOR, True, c4d.DESCFLAGS_SET_0)
             layer = m.AddReflectionLayer()
             if layer is not None:
                 layerID = layer.GetDataID()
@@ -810,9 +810,7 @@ def buildMaterial(doc, mat):
                 m.SetParameter(layerID + c4d.REFLECTION_LAYER_FRESNEL_PRESET, c4d.REFLECTION_FRESNEL_DIELECTRIC_ASPHALT, c4d.DESCFLAGS_SET_0)
 
         elif mat.material == 'METAL':
-            print mat.name
-            m[c4d.MATERIAL_COLOR_COLOR] = mat.color
-            m[c4d.MATERIAL_USE_COLOR] = True
+            m.SetParameter(c4d.MATERIAL_USE_COLOR, True, c4d.DESCFLAGS_SET_0)
             layer = m.AddReflectionLayer()
             if layer is not None:
                 layerID = layer.GetDataID()
@@ -822,24 +820,23 @@ def buildMaterial(doc, mat):
                 m.SetParameter(layerID + c4d.REFLECTION_LAYER_FRESNEL_METAL, c4d.REFLECTION_FRESNEL_METAL_ALUMINUM, c4d.DESCFLAGS_SET_0)
 
         elif mat.material == 'PEARLESCENT':
-                 m[c4d.MATERIAL_COLOR_COLOR] = mat.color
-                 m[c4d.MATERIAL_USE_COLOR] = True
-                 layer = m.AddReflectionLayer()
-                 if layer is not None:
-                    layerID = layer.GetDataID()
-                    m.SetParameter(layerID + c4d.REFLECTION_LAYER_MAIN_VALUE_REFLECTION, 0.8, c4d.DESCFLAGS_SET_0)
-                    m.SetParameter(layerID + c4d.REFLECTION_LAYER_MAIN_VALUE_ROUGHNESS, 0.15, c4d.DESCFLAGS_SET_0)
-                    m.SetParameter(layerID + c4d.REFLECTION_LAYER_FRESNEL_MODE, c4d.REFLECTION_FRESNEL_CONDUCTOR, c4d.DESCFLAGS_SET_0)
-                    if 'Gold' in mat.name:
-                        m.SetParameter(layerID + c4d.REFLECTION_LAYER_FRESNEL_METAL, c4d.REFLECTION_FRESNEL_METAL_GOLD, c4d.DESCFLAGS_SET_0)
-                    elif 'Copper' in mat.name:
-                        m.SetParameter(layerID + c4d.REFLECTION_LAYER_FRESNEL_METAL, c4d.REFLECTION_FRESNEL_METAL_COPPER, c4d.DESCFLAGS_SET_0)
-                    else:
-                        m.SetParameter(layerID + c4d.REFLECTION_LAYER_FRESNEL_METAL, c4d.REFLECTION_FRESNEL_METAL_ALUMINUM, c4d.DESCFLAGS_SET_0)
-        
+            m.SetParameter(c4d.MATERIAL_USE_COLOR, True, c4d.DESCFLAGS_SET_0)
+            layer = m.AddReflectionLayer()
+            if layer is not None:
+               layerID = layer.GetDataID()
+               m.SetParameter(layerID + c4d.REFLECTION_LAYER_MAIN_VALUE_REFLECTION, 0.8, c4d.DESCFLAGS_SET_0)
+               m.SetParameter(layerID + c4d.REFLECTION_LAYER_MAIN_VALUE_ROUGHNESS, 0.15, c4d.DESCFLAGS_SET_0)
+               m.SetParameter(layerID + c4d.REFLECTION_LAYER_FRESNEL_MODE, c4d.REFLECTION_FRESNEL_CONDUCTOR, c4d.DESCFLAGS_SET_0)
+               if 'Gold' in mat.name:
+                   m.SetParameter(layerID + c4d.REFLECTION_LAYER_FRESNEL_METAL, c4d.REFLECTION_FRESNEL_METAL_GOLD, c4d.DESCFLAGS_SET_0)
+               elif 'Copper' in mat.name:
+                   m.SetParameter(layerID + c4d.REFLECTION_LAYER_FRESNEL_METAL, c4d.REFLECTION_FRESNEL_METAL_COPPER, c4d.DESCFLAGS_SET_0)
+               else:
+                   m.SetParameter(layerID + c4d.REFLECTION_LAYER_FRESNEL_METAL, c4d.REFLECTION_FRESNEL_METAL_ALUMINUM, c4d.DESCFLAGS_SET_0)
+
         if mat.luminance > 0:
-            m[c4d.MATERIAL_USE_LUMINANCE] = True
-            m[c4d.MATERIAL_LUMINANCE_BRIGHTNESS] = (mat.luminance/100)*2
+            m.SetParameter(c4d.MATERIAL_USE_LUMINANCE, True, c4d.DESCFLAGS_SET_0)
+            m.SetParameter(c4d.MATERIAL_LUMINANCE_BRIGHTNESS, (mat.luminance/100) * 2, c4d.DESCFLAGS_SET_0)
 
         doc.InsertMaterial(m)
         doc.AddUndo(c4d.UNDOTYPE_NEW, m)
