@@ -535,7 +535,6 @@ class LDrawColors(object):
         return '#' + struct.pack('BBB',*rgb).encode('hex')
                    
 class LDrawColor(object):
-
     def __init__(self, vals):
         self.name = vals[2]
         self.code = int(self.getColorValue(vals, "CODE"))
@@ -753,9 +752,6 @@ def is_int(s):
 def Determinant(m):
     return m.v1.x * (m.v2.y * m.v3.z - m.v2.z * m.v3.y) - m.v1.y * (m.v2.x * m.v3.z - m.v2.z * m.v3.x) + m.v1.z * (m.v2.x * m.v3.y - m.v2.y * m.v3.x)
 
-#def Determinant(m):
-#    return (m.v1.x * m.v2.y * m.v3.z + m.v1.y * m.v2.z * m.v3.x + m.v1.z * m.v2.x * m.v3.y - m.v1.z * m.v2.y * m.v3.x - m.v1.y * m.v2.x * m.v3.z - m.v1.x * m.v2.z * m.v3.y)
-
 def buildMaterial(doc, mat):
     m = doc.SearchMaterial(str(mat.name))
     if (m is None):
@@ -763,19 +759,18 @@ def buildMaterial(doc, mat):
         m = c4d.Material(c4d.Mmaterial)
         m.SetParameter(c4d.ID_BASELIST_NAME, mat.name, c4d.DESCFLAGS_SET_0)
         m.SetParameter(c4d.MATERIAL_COLOR_COLOR, mat.color, c4d.DESCFLAGS_SET_0)
+        m.SetParameter(c4d.MATERIAL_USE_COLOR, True, c4d.DESCFLAGS_SET_0)
 
         m.RemoveReflectionAllLayers()
         
         if mat.material == 'BASIC' or mat.material == 'GLITTER' or mat.material == 'SPECKLE':
             if mat.alpha > 0:
-                m.SetParameter(c4d.MATERIAL_USE_COLOR, False, c4d.DESCFLAGS_SET_0)
+                m.SetParameter(c4d.MATERIAL_COLOR_BRIGHTNESS, 0.5, c4d.DESCFLAGS_SET_0)
                 m.SetParameter(c4d.MATERIAL_USE_TRANSPARENCY, True, c4d.DESCFLAGS_SET_0)
                 m.SetParameter(c4d.MATERIAL_TRANSPARENCY_BRIGHTNESS, 1, c4d.DESCFLAGS_SET_0)
                 m.SetParameter(c4d.MATERIAL_TRANSPARENCY_REFRACTION, 1.575, c4d.DESCFLAGS_SET_0)
                 m.SetParameter(c4d.MATERIAL_TRANSPARENCY_COLOR, mat.color, c4d.DESCFLAGS_SET_0)
-            else:
-                m.SetParameter(c4d.MATERIAL_USE_COLOR, True, c4d.DESCFLAGS_SET_0)
-            
+                
             layer = m.AddReflectionLayer()
             if layer is not None:
                 layerID = layer.GetDataID()
@@ -785,7 +780,6 @@ def buildMaterial(doc, mat):
                 m.SetParameter(layerID + c4d.REFLECTION_LAYER_FRESNEL_PRESET, c4d.REFLECTION_FRESNEL_DIELECTRIC_PET, c4d.DESCFLAGS_SET_0)
 
         elif mat.material == 'CHROME':
-            m.SetParameter(c4d.MATERIAL_USE_COLOR, True, c4d.DESCFLAGS_SET_0)
             layer = m.AddReflectionLayer()
             if layer is not None:
                 layerID = layer.GetDataID()
@@ -799,7 +793,6 @@ def buildMaterial(doc, mat):
                     m.SetParameter(layerID + c4d.REFLECTION_LAYER_FRESNEL_METAL, c4d.REFLECTION_FRESNEL_METAL_CHROMIUM, c4d.DESCFLAGS_SET_0)
 
         elif mat.material == 'RUBBER':
-            m.SetParameter(c4d.MATERIAL_USE_COLOR, True, c4d.DESCFLAGS_SET_0)
             layer = m.AddReflectionLayer()
             if layer is not None:
                 layerID = layer.GetDataID()
@@ -810,7 +803,6 @@ def buildMaterial(doc, mat):
                 m.SetParameter(layerID + c4d.REFLECTION_LAYER_FRESNEL_PRESET, c4d.REFLECTION_FRESNEL_DIELECTRIC_ASPHALT, c4d.DESCFLAGS_SET_0)
 
         elif mat.material == 'METAL':
-            m.SetParameter(c4d.MATERIAL_USE_COLOR, True, c4d.DESCFLAGS_SET_0)
             layer = m.AddReflectionLayer()
             if layer is not None:
                 layerID = layer.GetDataID()
@@ -820,7 +812,6 @@ def buildMaterial(doc, mat):
                 m.SetParameter(layerID + c4d.REFLECTION_LAYER_FRESNEL_METAL, c4d.REFLECTION_FRESNEL_METAL_ALUMINUM, c4d.DESCFLAGS_SET_0)
 
         elif mat.material == 'PEARLESCENT':
-            m.SetParameter(c4d.MATERIAL_USE_COLOR, True, c4d.DESCFLAGS_SET_0)
             layer = m.AddReflectionLayer()
             if layer is not None:
                layerID = layer.GetDataID()
@@ -1051,7 +1042,7 @@ class LDRDialog(gui.GeDialog):
     def Load(self):
         global FILEMANAGER,LDRAWCOLORS
 
-        file = c4d.storage.LoadDialog(type=c4d.FILESELECTTYPE_ANYTHING, title="Select File (ldr)", force_suffix="ldr")
+        file = c4d.storage.LoadDialog(type=c4d.FILESELECTTYPE_SCENES, title="Select File (ldr,mdp,dat)")
         if file:
             FILEMANAGER = FileManager(self.ldrawpath , file , self.resolution, self.logo)
             LDRAWCOLORS = LDrawColors()
@@ -1080,10 +1071,9 @@ class LDRDialog(gui.GeDialog):
             doc.InsertObject(parent)
             doc.AddUndo(c4d.UNDOTYPE_NEW, parent)
 
-            c4d.EventAdd() 
+            c4d.EventAdd(c4d.EVENT_FORCEREDRAW) 
             doc.EndUndo()
             
-            c4d.StatusSetText('')
             c4d.StatusClear()
             doc.Message(c4d.MSG_UPDATE)
         return True
