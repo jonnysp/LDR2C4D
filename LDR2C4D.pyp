@@ -28,7 +28,7 @@ COMBO_HIH = 1023
 FILEMANAGER = None
 LDRAWCOLORS = None
 
-VERSION = '1.0.0'
+VERSION = '1.0.1'
 
 print("- - - - - - - - - - - -")
 print("           _           ")
