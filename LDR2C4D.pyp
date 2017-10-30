@@ -123,17 +123,20 @@ def generate(ld,matrix,currentColor,doc,parent,optimizesettings,optimize,smoth):
                 obj.Message(c4d.MSG_UPDATE)
 
         else:
- 
-            newnode = c4d.BaseObject(c4d.Onull)
-            newnode[c4d.NULLOBJECT_DISPLAY] = c4d.NULLOBJECT_DISPLAY_NONE
-            newnode.SetName(ld.Partname)      
-            newnode.SetMg(FLIP * matrix * FLIP) 
 
-            for sp in ld.LdrawLines:
-                if isinstance(sp,LdrawSubpartLine):
-                    generate(sp.Subpart, sp.Matrix , currentColor if sp.Color == 16 or sp.Color == 24 else sp.Color ,doc, newnode , optimizesettings , optimize , smoth)
-            
-            doc.InsertObject(newnode , parent)
+            if len(ld.LdrawLines) > 0:
+
+                newnode = c4d.BaseObject(c4d.Onull)
+                newnode[c4d.NULLOBJECT_DISPLAY] = c4d.NULLOBJECT_DISPLAY_NONE
+                newnode.SetName(ld.Partname)      
+                newnode.SetMg(FLIP * matrix * FLIP) 
+
+                for sp in ld.LdrawLines:
+                    if isinstance(sp,LdrawSubpartLine):
+                        generate(sp.Subpart, sp.Matrix , currentColor if sp.Color == 16 or sp.Color == 24 else sp.Color ,doc, newnode , optimizesettings , optimize , smoth)
+                
+                doc.InsertObject(newnode , parent)
+
 
 class MeshFiller(object):
 
