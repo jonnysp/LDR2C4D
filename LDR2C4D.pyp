@@ -48,7 +48,7 @@ def generate(ld,matrix,currentColor,doc,parent,optimizesettings,optimize,smoth):
 
     if (ld is not None):
 
-        if ld.isPart == True or ld.isSubpart == True:
+        if ld.isPart == True:
 
             c4d.StatusSetText('Generate Part: {0} ({1})'.format(ld.Partname, ld.Name))
 
@@ -178,13 +178,6 @@ class MeshFiller(object):
         self.facecolors.append(color)
 
     def addFace4(self,ccw,certified,det,color,v0,v1,v2,v3):
-
-#        nA = (v1 - v0).Cross(v2 - v0)
-#        nB = (v2 - v1).Cross(v3 - v1)
-#        if (nA.Dot(nB) < 0):
-#            print "bowtie detected"
-#            v2, v3 = v3, v2
-
         if not certified == True:
             ccw = True
         flip = self.inverting ^ (det < 0) ^ (not ccw)
@@ -383,10 +376,7 @@ class LdrawFile(object):
 
     def __init__(self, FileName , Lines):
         self.LdrawLines = []
-        self.isModel = False
         self.isPart = False
-        self.isShortcut = False
-        self.isSubpart = False
         self.Name = FileName
         self.Partname = ''
         self.Keywords = []
@@ -421,12 +411,6 @@ class LdrawFile(object):
                     if commentline.isPart() == True:
                         self.isPart = True
 
-                    if commentline.isSubpart() == True:
-                        self.isSubpart = True
-
-                    if commentline.isShortcut() == True:
-                        self.isShortcut = True
-
                     if commentline.Category() != '':
                         self.Category = commentline.Category()
 
@@ -442,22 +426,20 @@ class LdrawFile(object):
                 elif tokens[0] == '1':
                     self.LdrawLines.append(LdrawSubpartLine(tokens, inverted))
                 elif tokens[0] == '2':
-                    pass
                     #self.LdrawLines.append(LdrawLineLine(tokens))
+                    pass
                 elif tokens[0] == '3':
                     self.LdrawLines.append(LdrawTriangleLine(tokens, ccw, certified))
                 elif tokens[0] == '4':
                     self.LdrawLines.append(LdrawQuadLine(tokens, ccw, certified))
                 elif tokens[0] == '5':
-                    pass
                     #self.LdrawLines.append(LdrawCondLine(tokens))
-
-        if self.isPart == False and self.isSubpart == False and self.isShortcut == False:
+                    pass
+                    
+        if self.isPart == False:
         	self.isPart = not self.HasParts(self.LdrawLines)
         
-        self.isModel = (not self.isPart) and (not self.isSubpart) and (not self.isShortcut)
-
-        if len(Lines) > 0 and (self.isPart or self.isSubpart or self.isShortcut or self.isModel):
+        if len(Lines) > 0:
             self.Partname = Lines[0][2:]
 
     def HasParts(self,Lines):
@@ -631,14 +613,8 @@ class LdrawCommentLine(object):
         return (len(self.vals) == 3) and (self.vals[1] == "BFC") and (self.vals[2] == "CW")
 
     def isPart(self):
-        return (len(self.vals) >= 3) and (self.vals[1] == "!LDRAW_ORG") and ("Part" in self.vals[2])
-    
-    def isSubpart(self):
-        return (len(self.vals) >= 3) and (self.vals[1] == "!LDRAW_ORG") and ("Subpart" in self.vals[2])
-    
-    def isShortcut(self):
-        return (len(self.vals) >= 3) and (self.vals[1] == "!LDRAW_ORG") and ("Shortcut" in self.vals[2])
-
+        return (len(self.vals) >= 3) and (self.vals[1] == "!LDRAW_ORG") and ((self.vals[2].find("Part") > -1) or (self.vals[2].find("Subpart") > -1) or (self.vals[2].find("Shortcut") > -1))
+        
     def Category(self):
         if (len(self.vals) >= 2) and (self.vals[1] == "!CATEGORY"):
             return ' '.join(self.vals[2:])
